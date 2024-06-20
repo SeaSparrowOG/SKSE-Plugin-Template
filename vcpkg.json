@@ -1,13 +1,16 @@
 {
   "name": "skse-template",
   "version-string": "1.0.0",
-  "description": "",
+  "description": "An SKSE template that allows you to build with either NG or PO3's clib.",
   "homepage": "",
   "license": "MIT",
   "dependencies": [
+    "rapidcsv",
+    "directxtk",
     "rsm-binary-io",
     "spdlog",
     "clib-util",
+    "jsoncpp",
     "xbyak"
   ],
   "overrides": [
