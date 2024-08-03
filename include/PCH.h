@@ -13,6 +13,8 @@
 #include <ClibUtil/singleton.hpp>
 #include <ClibUtil/distribution.hpp>
 #include <ClibUtil/editorID.hpp>
+#include <ClibUtil/rng.hpp>
+
 #include <json/json.h>
 
 #define DLLEXPORT __declspec(dllexport)
@@ -30,17 +32,32 @@ using namespace clib_util::singleton;
 
 #include "Version.h"
 
+#define _debugEDID clib_util::editorID::get_editorID
+#define _loggerDebug SKSE::log::debug
 #define _loggerInfo SKSE::log::info
 #define _loggerError SKSE::log::error
-#define _1_6_1170 (unsigned short)1U, (unsigned short)6U, (unsigned short)1170U, (unsigned short)0U
 
 namespace stl {
-	template <class T>
-	void write_thunk_call(std::uintptr_t a_src)
-	{
-		SKSE::AllocTrampoline(14);
+    template <class T>
+    void write_thunk_call(std::uintptr_t a_src)
+    {
+        SKSE::AllocTrampoline(14);
 
-		auto& trampoline = SKSE::GetTrampoline();
-		T::func = trampoline.write_call<5>(a_src, T::thunk);
-	}
+        auto& trampoline = SKSE::GetTrampoline();
+        T::func = trampoline.write_call<5>(a_src, T::thunk);
+    }
+
+    template <typename TDest, typename TSource>
+    constexpr auto write_vfunc() noexcept
+    {
+        REL::Relocation<std::uintptr_t> vtbl{ TDest::VTABLE[0] };
+        TSource::func = vtbl.write_vfunc(TSource::idx, TSource::Thunk);
+    }
+
+    template <typename T>
+    constexpr auto write_vfunc(const REL::ID variant_id) noexcept
+    {
+        REL::Relocation<std::uintptr_t> vtbl{ variant_id };
+        T::func = vtbl.write_vfunc(T::idx, T::Thunk);
+    }
 }

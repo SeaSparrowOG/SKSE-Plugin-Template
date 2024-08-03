@@ -4,10 +4,7 @@ set(NAME "SKSEPluginTemplate" CACHE STRING "")
 set(VERSION 1.0.0 CACHE STRING "")
 
 # ---- Options ----
-option(SUPPORT_VR "Build for VR." OFF)
-option(BUILD_SKYRIMVR "Build for Skyrim VR" OFF)
-option(BUILD_SKYRIMAE "Build for Skyrim AE" OFF)
-option(BUILD_NG "Build for Skyrim SE and AE." OFF)
+option(BUILD_TEST "Sets log level to debug." OFF)
 
 # ---- Cache build vars ----
 macro(set_from_environment VARIABLE)
@@ -18,38 +15,30 @@ endmacro()
 
 macro(find_commonlib_path)
 	if (CommonLibName AND NOT ${CommonLibName} STREQUAL "")
-		# Check extern
-		find_path(CommonLibPath
-		include/REL/Relocation.h
-		PATHS extern/${CommonLibName})
+		# Check path
+		set_from_environment(${CommonLibName}Path)
+		set(CommonLibPath ${${CommonLibName}Path})
 		if (${CommonLibPath} STREQUAL "CommonLibPath-NOTFOUND")
-			#Check path
-			set_from_environment(${CommonLibName}Path)
-			set(CommonLibPath ${${CommonLibName}Path})
+			#Check extern
+			find_path(CommonLibPath
+			include/REL/Relocation.h
+			PATHS extern/${CommonLibName})
 		endif()
 	endif()
 endmacro()
 
 set_from_environment(VCPKG_ROOT) 
-
-if(BUILD_NG)
-	set(CommonLibName "CommonLibNG")
-	set(BUILD_TESTS OFF)
-else()
-	set(CommonLibName "CommonLibSSE")
-endif()
-
+set(CommonLibName "CommonLibSSE")
 find_commonlib_path()
 set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
 
-if (BUILD_SKYRIMAE)
-	add_compile_definitions(SKYRIM_AE)
-	add_compile_definitions(SKYRIM_SUPPORT_AE)
-else()
-	add_compile_definitions(SKYRIM_NG)
+add_compile_definitions(SKYRIM_AE)
+add_compile_definitions(SKYRIM_SUPPORT_AE)
+if (BUILD_TEST)
+	add_compile_definitions(DEBUG)
 endif()
 
 # ---- Project ----
@@ -93,13 +82,6 @@ endif ()
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 set(Boost_USE_STATIC_LIBS ON)
-
-#NG Specific Fuckery
-if (BUILD_NG)
-	set(CMAKE_CXX_STANDARD 23)
-	set(CMAKE_CXX_STANDARD_REQUIRED ON)
-	include(GNUInstallDirs)
-endif()
 
 # ---- Dependencies ----
 
@@ -167,7 +149,7 @@ target_include_directories(
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-		CommonLibSSE::CommonLibSSE
+		${CommonLibName}::${CommonLibName}
 		JsonCpp::JsonCpp
 )
 
@@ -207,7 +189,7 @@ if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
 	if(BUILD_SKYRIMAE)
 		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
 	else() 
-		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Old")
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Test")
 	endif()
 endif()
 

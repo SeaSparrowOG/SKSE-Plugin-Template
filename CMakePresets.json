@@ -37,51 +37,48 @@
       "toolset": "v143"
     },
     {
-      "name": "ng",
+      "name": "release",
       "hidden": true,
-      "binaryDir": "${sourceDir}/build-ng",
+      "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "test",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build-test",
       "cacheVariables": {
-        "BUILD_NG": true
+        "BUILD_TEST": true
       }
     },
     {
-      "name": "ae",
-      "hidden": true,
-      "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "BUILD_SKYRIMAE": true
-      }
-    },
-    {
-      "name": "vs2022-windows-vcpkg-ng",
+      "name": "vs2022-windows-vcpkg-release",
       "inherits": [
         "cmake-dev",
         "vcpkg",
         "windows",
         "vs2022",
-        "ng"
+        "release"
       ]
     },
     {
-      "name": "vs2022-windows-vcpkg-ae",
+      "name": "vs2022-windows-vcpkg-test",
       "inherits": [
         "cmake-dev",
         "vcpkg",
         "windows",
         "vs2022",
-        "ae"
+        "test"
       ]
     }
   ],
   "buildPresets": [
     {
       "name": "Release",
-      "configurePreset": "vs2022-windows-vcpkg-ae",
+      "configurePreset": "vs2022-windows-vcpkg-release",
       "configuration": "Release"
     },
     {
-      "name": "Release - NG",
-      "configurePreset": "vs2022-windows-vcpkg-ng",
+      "name": "Test",
+      "configurePreset": "vs2022-windows-vcpkg-test",
       "configuration": "Release"
     }
   ]

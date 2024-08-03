@@ -1,12 +1,10 @@
 {
-  "name": "skse-template",
+  "name": "replaceme",
   "version-string": "1.0.0",
-  "description": "An SKSE template that allows you to build with either NG or PO3's clib.",
+  "description": "Template for SKSE plugin built using my commonlib. MIT License by default.",
   "homepage": "",
   "license": "MIT",
   "dependencies": [
-    "rapidcsv",
-    "directxtk",
     "rsm-binary-io",
     "spdlog",
     "clib-util",
