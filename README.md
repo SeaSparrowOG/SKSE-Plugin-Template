@@ -11,7 +11,7 @@ This is a framework that allows for more interesting visuals for enchanted weapo
 ```
 git clone https://github.com/SeaSparrowOG/EnchantmentArtExtender
 cd EnchantmentArtExtender
-git submodule innit
+git submodule init
 git submodule update --recursive
 cmake --preset vs2022-windows-vcpkg 
 cmake --build Release --config Release
