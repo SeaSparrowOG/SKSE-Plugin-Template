@@ -1,4 +1,5 @@
 #include "hooks/hooks.h"
+#include "Papyrus/papyrus.h"
 
 namespace
 {
@@ -86,5 +87,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	messaging->RegisterListener(&MessageEventCallback);
 
 	Hooks::Install();
+	SKSE::GetPapyrusInterface()->Register(Papyrus::RegisterFunctions);
 	return true;
 }
