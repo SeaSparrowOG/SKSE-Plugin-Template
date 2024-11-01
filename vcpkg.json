@@ -5,17 +5,12 @@
   "homepage": "",
   "license": "MIT",
   "dependencies": [
+    "fmt",
     "rsm-binary-io",
     "spdlog",
     "clib-util",
     "jsoncpp",
     "xbyak"
   ],
-  "overrides": [
-    {
-      "name": "fmt",
-      "version": "9.1.0"
-    }
-  ],
-  "builtin-baseline": "b7dba7f9aad09a56900f21cd78cfda1258e54e38"
+  "builtin-baseline": "4f746bc66438fce2b900c3ba6094a483b871b045"
 }

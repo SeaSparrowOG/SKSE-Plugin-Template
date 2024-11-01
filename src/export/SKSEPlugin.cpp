@@ -1,5 +1,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include "hooks.h"
+
 void SetupLog() {
     auto logsFolder = SKSE::log::log_directory();
     if (!logsFolder) SKSE::stl::report_and_fail("SKSE log_directory not provided, logs disabled.");
@@ -51,5 +53,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
     auto messaging = SKSE::GetMessagingInterface();
     messaging->RegisterListener(MessageHandler);
+
+    Hooks::Install();
     return true;
 }
