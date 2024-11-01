@@ -37,5 +37,3 @@ target_link_libraries(
 set_target_properties(CommonLibSSE PROPERTIES
 	FOLDER External
 )
-
-set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
