@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
+option(BUILD_TEST "Sets log level to debug." OFF)
+
 project(
 	ProjectTemplate
 	VERSION 1.0.0
@@ -15,12 +17,18 @@ list(APPEND CMAKE_MODULE_PATH
 include(SKSEPlugin)
 set(SKSE_USE_XBYAK ON)
 
+add_compile_definitions(SKYRIM_AE)
+add_compile_definitions(SKYRIM_SUPPORT_AE)
+add_compile_definitions(SKSE_SUPPORT_XBYAK)
+
+if (BUILD_TEST)
+	add_compile_definitions(DEBUG)
+endif()
+
 SKSEPlugin_Add(
 	${PROJECT_NAME}
 	SOURCE_DIR src
 	SOURCES
-		.clang-format
-		.editorconfig
 		README.md
 		vcpkg.json
 	PRECOMPILE_HEADERS
@@ -37,3 +45,24 @@ target_link_libraries(
 set_target_properties(CommonLibSSE PROPERTIES
 	FOLDER External
 )
+
+# ---- Post build ----
+if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
+	if(BUILD_SKYRIMAE)
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
+	else() 
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Old")
+	endif()
+endif()
+
+if(DEFINED OUTPUT_FOLDER)
+    set(DLL_FOLDER "${OUTPUT_FOLDER}/SKSE/Plugins")
+
+    add_custom_command(
+        TARGET "${PROJECT_NAME}"
+        POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+		COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_PDB_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_PDB_FILE_NAME:${PROJECT_NAME}>"
+        VERBATIM
+    )
+endif()
