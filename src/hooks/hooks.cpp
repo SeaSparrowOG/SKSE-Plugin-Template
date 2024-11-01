@@ -1,4 +1,4 @@
-#include "hooks.h"
+#include "Hooks/hooks.h"
 
 namespace Hooks {
 	void Install()

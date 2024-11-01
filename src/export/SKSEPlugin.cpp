@@ -1,59 +1,90 @@
-#include <spdlog/sinks/basic_file_sink.h>
+#include "hooks/hooks.h"
 
-#include "hooks.h"
+namespace
+{
+	void InitializeLog()
+	{
+		auto path = logger::log_directory();
+		if (!path) {
+			util::report_and_fail("Failed to find standard logging directory"sv);
+		}
 
-void SetupLog() {
-    auto logsFolder = SKSE::log::log_directory();
-    if (!logsFolder) SKSE::stl::report_and_fail("SKSE log_directory not provided, logs disabled.");
+		*path /= fmt::format("{}.log"sv, Plugin::NAME);
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-    auto pluginName = Version::NAME;
-    auto logFilePath = *logsFolder / std::format("{}.log", pluginName);
-    auto fileLoggerPtr = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath.string(), true);
-    auto loggerPtr = std::make_shared<spdlog::logger>("log", std::move(fileLoggerPtr));
-
-    spdlog::set_default_logger(std::move(loggerPtr));
 #ifdef DEBUG
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::flush_on(spdlog::level::debug);
-#else
-    spdlog::set_level(spdlog::level::info);
-    spdlog::flush_on(spdlog::level::info);
+		const auto level = spdlog::level::debug;
+#else 
+		const auto level = spdlog::level::info;
 #endif
 
-    //Pattern
-    spdlog::set_pattern("%v");
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		log->set_level(level);
+		log->flush_on(level);
+
+		spdlog::set_default_logger(std::move(log));
+		spdlog::set_pattern("%s(%#): [%^%l%$] %v"s);
+	}
 }
 
-void MessageHandler(SKSE::MessagingInterface::Message* a_message) {
-    switch (a_message->type) {
-    case SKSE::MessagingInterface::kDataLoaded:
-        break;
-    default:
-        break;
-    }
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
+	{
+		SKSE::PluginVersionData v{};
+
+		v.PluginVersion(Plugin::VERSION);
+		v.PluginName(Plugin::NAME);
+		v.AuthorName("SeaSparrow"sv);
+		v.UsesAddressLibrary();
+		v.UsesUpdatedStructs();
+
+		return v;
+	}();
+
+extern "C" DLLEXPORT bool SKSEAPI
+SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+{
+	a_info->infoVersion = SKSE::PluginInfo::kVersion;
+	a_info->name = Plugin::NAME.data();
+	a_info->version = Plugin::VERSION[0];
+
+	if (a_skse->IsEditor()) {
+		return false;
+	}
+
+	const auto ver = a_skse->RuntimeVersion();
+	if (ver < SKSE::RUNTIME_1_6_1130) {
+		return false;
+	}
+
+	return true;
 }
 
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
-    SKSE::PluginVersionData v;
-    v.PluginVersion({ Version::MAJOR, Version::MINOR, Version::PATCH });
-    v.PluginName(Version::NAME);
-    v.AuthorName(Version::PROJECT_AUTHOR);
-    v.UsesAddressLibrary();
-    v.UsesUpdatedStructs();
-    v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
-    return v;
-    }();
+static void MessageEventCallback(SKSE::MessagingInterface::Message* a_msg)
+{
+	switch (a_msg->type) {
+	case SKSE::MessagingInterface::kDataLoaded:
+		break;
+	default:
+		break;
+	}
+}
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse) {
-    SetupLog();
-    _loggerInfo("Starting up {}.", Version::NAME);
-    _loggerInfo("Plugin Version: {}.", Version::VERSION);
-    _loggerInfo("-------------------------------------------------------------------------------------");
-    SKSE::Init(a_skse);
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
+{
+	InitializeLog();
+	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 
-    auto messaging = SKSE::GetMessagingInterface();
-    messaging->RegisterListener(MessageHandler);
+	SKSE::Init(a_skse);
+	SKSE::AllocTrampoline(0);
 
-    Hooks::Install();
-    return true;
+	const auto ver = a_skse->RuntimeVersion();
+	if (ver < SKSE::RUNTIME_1_6_1130) {
+		return false;
+	}
+
+	const auto messaging = SKSE::GetMessagingInterface();
+	messaging->RegisterListener(&MessageEventCallback);
+
+	Hooks::Install();
+	return true;
 }

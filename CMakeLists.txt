@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 
 option(BUILD_TEST "Sets log level to debug." OFF)
 
+# -------- Project ----------
 project(
 	ProjectTemplate
 	VERSION 1.0.0
@@ -35,12 +36,14 @@ SKSEPlugin_Add(
 		src/common/PCH.h
 )
 
+
 find_package(jsoncpp CONFIG REQUIRED)
+
 target_link_libraries(
 		"${PROJECT_NAME}"
 		PRIVATE
 			JsonCpp::JsonCpp
-	)
+)
 
 set_target_properties(CommonLibSSE PROPERTIES
 	FOLDER External
@@ -48,10 +51,10 @@ set_target_properties(CommonLibSSE PROPERTIES
 
 # ---- Post build ----
 if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
-	if(BUILD_SKYRIMAE)
-		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
+	if(BUILD_TEST)
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Test")
 	else() 
-		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Old")
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
 	endif()
 endif()
 
