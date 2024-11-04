@@ -129,6 +129,23 @@ namespace Utilities
 			std::ranges::transform(result, result.begin(), [](unsigned char ch) { return static_cast<unsigned char>(std::tolower(ch)); });
 			return result;
 		}
+
+		inline bool replace_all(std::string& a_str, std::string_view a_search, std::string_view a_replace)
+		{
+			if (a_search.empty()) {
+				return false;
+			}
+
+			std::size_t pos = 0;
+			bool wasReplaced = false;
+			while ((pos = a_str.find(a_search, pos)) != std::string::npos) {
+				a_str.replace(pos, a_search.length(), a_replace);
+				pos += a_replace.length();
+				wasReplaced = true;
+			}
+
+			return wasReplaced;
+		}
 	}
 
 	namespace Forms
