@@ -49,6 +49,15 @@ set_target_properties(CommonLibSSE PROPERTIES
 	FOLDER External
 )
 
+set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
+
+install(
+	FILES "${DATA_DIR}/SKSE/Plugins/replaceme.ini"
+	DESTINATION "SKSE/Plugins"
+)
+
+include(components.cmake)
+
 # ---- Post build ----
 if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
 	if(BUILD_TEST)
