@@ -1,30 +1,34 @@
 cmake_minimum_required(VERSION 3.24)
 
-option(BUILD_TEST "Sets log level to debug." OFF)
+option(FULL_RELEASE "Finalizes the build, compressing everything into a BSA." OFF)
 
 # -------- Project ----------
 project(
-	ProjectTemplate
+	TemplateProject
 	VERSION 1.0.0
 	LANGUAGES CXX
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+get_filename_component(
+	Skyrim64Path
+	"[HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Bethesda Softworks\\Skyrim Special Edition;installed path]"
+	ABSOLUTE CACHE
+)
+
 list(APPEND CMAKE_IGNORE_PATH "${PROJECT_BINARY_DIR}")
 list(APPEND CMAKE_MODULE_PATH
 	"${PROJECT_SOURCE_DIR}/tools/SKSE-CMakeModules/Modules"
 )
+list(APPEND CMAKE_MODULE_PATH
+	"${PROJECT_SOURCE_DIR}/tools/Bethesda-CMakeModules/Modules"
+)
 include(SKSEPlugin)
 set(SKSE_USE_XBYAK ON)
-
+add_compile_definitions(SKSE_SUPPORT_XBYAK)
 add_compile_definitions(SKYRIM_AE)
 add_compile_definitions(SKYRIM_SUPPORT_AE)
-add_compile_definitions(SKSE_SUPPORT_XBYAK)
-
-if (BUILD_TEST)
-	add_compile_definitions(DEBUG)
-endif()
 
 SKSEPlugin_Add(
 	${PROJECT_NAME}
@@ -35,7 +39,6 @@ SKSEPlugin_Add(
 	PRECOMPILE_HEADERS
 		src/common/PCH.h
 )
-
 
 find_package(jsoncpp CONFIG REQUIRED)
 
@@ -51,22 +54,35 @@ set_target_properties(CommonLibSSE PROPERTIES
 
 set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
 
-install(
-	FILES "${DATA_DIR}/SKSE/Plugins/replaceme.ini"
-	DESTINATION "SKSE/Plugins"
-)
-
 include(components.cmake)
 
 # ---- Post build ----
 if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
-	if(BUILD_TEST)
-		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Test")
-	else() 
+	if(FULL_RELEASE)
 		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
+	else()
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Test")
 	endif()
 endif()
 
+# ---- Compile Papyrus Scripts and Pack Into Archive ----
+include(Papyrus)
+
+file(GLOB ${PROJECT_NAME}_SOURCES
+	LIST_DIRECTORIES false
+	CONFIGURE_DEPENDS
+	"Data/Source/Scripts/*.psc"
+)
+
+Papyrus_Add(
+	"Papyrus"
+	GAME ${Skyrim64Path}
+	IMPORTS ${CMAKE_CURRENT_SOURCE_DIR}/Data/Source/Scripts
+	SOURCES ${${PROJECT_NAME}_SOURCES}
+	OPTIMIZE ANONYMIZE
+)
+
+# ---- Automatically copy artifacts to MO2 ----
 if(DEFINED OUTPUT_FOLDER)
     set(DLL_FOLDER "${OUTPUT_FOLDER}/SKSE/Plugins")
 
@@ -74,7 +90,26 @@ if(DEFINED OUTPUT_FOLDER)
         TARGET "${PROJECT_NAME}"
         POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
-		COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_PDB_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_PDB_FILE_NAME:${PROJECT_NAME}>"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_PDB_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_PDB_FILE_NAME:${PROJECT_NAME}>"
+
+		COMMAND "${CMAKE_COMMAND}"
+			-DSRC_DIR="${PROJECT_SOURCE_DIR}/Data"
+			-DDST_DIR="${OUTPUT_FOLDER}"
+			-DPROJECT_NAME="${PROJECT_NAME}"
+			-P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Artifacts.cmake"
+    )
+
+	# Loose scripts for non-release builds (why? Because I said so smile)
+    if(NOT FULL_RELEASE)
+        add_custom_command(
+        TARGET "${PROJECT_NAME}"
+        POST_BUILD
+        COMMAND "${CMAKE_COMMAND}"
+            -DSOURCE_SCRIPTS="${PROJECT_SOURCE_DIR}/Data/Source/Scripts"
+            -DCOMPILED_SCRIPTS="${CMAKE_BINARY_DIR}/Scripts"
+            -DOUTPUT_FOLDER="${OUTPUT_FOLDER}"
+            -P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Scripts.cmake"
         VERBATIM
     )
+    endif()
 endif()
