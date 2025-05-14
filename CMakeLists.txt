@@ -140,9 +140,6 @@ get_filename_component(
 
 list(APPEND CMAKE_IGNORE_PATH "${PROJECT_BINARY_DIR}")
 list(APPEND CMAKE_MODULE_PATH
-	"${PROJECT_SOURCE_DIR}/tools/SKSE-CMakeModules/Modules"
-)
-list(APPEND CMAKE_MODULE_PATH
 	"${PROJECT_SOURCE_DIR}/tools/Bethesda-CMakeModules/Modules"
 )
 set(SKSE_USE_XBYAK ON)
@@ -176,7 +173,6 @@ set_target_properties(CommonLibSSE PROPERTIES
 set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
 
 include(Papyrus)
-include(BSArchive)
 
 file(GLOB ${PROJECT_NAME}_SOURCES
 	LIST_DIRECTORIES false
@@ -190,13 +186,6 @@ Papyrus_Add(
 	IMPORTS ${CMAKE_CURRENT_SOURCE_DIR}/Data/Source/Scripts
 	SOURCES ${${PROJECT_NAME}_SOURCES}
 	OPTIMIZE ANONYMIZE
-)
-
-BSArchive_Add(
-	"BSA"
-	OUTPUT "${PROJECT_NAME}.bsa"
-	FORMAT SSE
-	FILES ${Papyrus_OUTPUT}
 )
 
 # ---- Automatically copy artifacts to MO2 ----
