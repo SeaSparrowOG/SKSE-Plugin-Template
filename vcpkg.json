@@ -1,17 +1,17 @@
 {
-  "name": "replaceme",
+  "name": "example-plugin",
   "version-string": "1.0.0",
-  "description": "Template for SKSE plugin built using my commonlib. MIT License by default.",
+  "description": "Template for SKSE plugin built using commonlib. MIT License by default.",
   "homepage": "",
   "license": "MIT",
   "dependencies": [
+    "boost-stl-interfaces",
     "fmt",
     "rsm-binary-io",
     "spdlog",
-    "clib-util",
     "jsoncpp",
     "simpleini",
     "xbyak"
   ],
-  "builtin-baseline": "ea295dff0b3e9e9caeb49d1225dc7272d3231cf1"
+  "builtin-baseline": "f9a99aa79c1309001e36572fa42d7d8edebfc451"
 }

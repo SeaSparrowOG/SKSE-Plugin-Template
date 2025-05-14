@@ -10,7 +10,7 @@ namespace
 			util::report_and_fail("Failed to find standard logging directory"sv);
 		}
 
-		*path /= fmt::format("{}.log"sv, Plugin::NAME);
+		*path /= fmt::format("{}.log"sv, "Plugin::NAME");
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
 #ifdef DEBUG
@@ -32,8 +32,8 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
 	{
 		SKSE::PluginVersionData v{};
 
-		v.PluginVersion(Plugin::VERSION);
-		v.PluginName(Plugin::NAME);
+		v.PluginVersion({1, 1, 1, 1});
+		v.PluginName("sex");
 		v.AuthorName("SeaSparrow"sv);
 		v.UsesAddressLibrary();
 		v.UsesUpdatedStructs();
@@ -45,8 +45,8 @@ extern "C" DLLEXPORT bool SKSEAPI
 SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = Plugin::NAME.data();
-	a_info->version = Plugin::VERSION[0];
+	a_info->name = "BAM";
+	a_info->version = 1;
 
 	if (a_skse->IsEditor()) {
 		return false;
@@ -73,7 +73,7 @@ static void MessageEventCallback(SKSE::MessagingInterface::Message* a_msg)
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	InitializeLog();
-	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
+	logger::info("{} v{}"sv, "Plugin::NAME", "Plugin::VERSION.string()");
 
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(0);

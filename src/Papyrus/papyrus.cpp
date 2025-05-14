@@ -3,7 +3,7 @@
 namespace Papyrus
 {
 	std::vector<int> GetVersion(STATIC_ARGS) {
-		return { Plugin::VERSION[0], Plugin::VERSION[1], Plugin::VERSION[2] };
+		return { 1, 1, 1 };
 	}
 
 	void Bind(VM& a_vm) {

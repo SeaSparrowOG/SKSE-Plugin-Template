@@ -8,8 +8,6 @@
 
 #include <json/json.h>
 
-#include "Plugin.h"
-
 #define DLLEXPORT __declspec(dllexport)
 
 namespace logger = SKSE::log;
