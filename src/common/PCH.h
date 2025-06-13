@@ -2,7 +2,9 @@
 
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
+#include "REX/REX.h"
 
+#include <unordered_set>
 #include <fstream>
 #include <spdlog/sinks/basic_file_sink.h>
 
@@ -84,24 +86,12 @@ namespace stl {
 template <class T>
 inline constexpr bool always_false = false;
 
-template <class T>
-class Singleton
-{
-public:
-    static T* GetSingleton()
-    {
-        static T singleton;
-        return std::addressof(singleton);
-    }
-
-    Singleton(const Singleton&) = delete;
-    Singleton(Singleton&&) = delete;
-    Singleton& operator=(const Singleton&) = delete;
-    Singleton& operator=(Singleton&&) = delete;
-
-protected:
-    Singleton() = default;
-    ~Singleton() = default;
-};
-
 #define SECTION_SEPARATOR logger::info("=========================================================="sv)
+
+#ifdef SKYRIM_AE
+#	define OFFSET(se, ae) ae
+#	define OFFSET_3(se, ae, vr) ae
+#else
+#	define OFFSET(se, ae) se
+#	define OFFSET_3(se, ae, vr) se
+#endif

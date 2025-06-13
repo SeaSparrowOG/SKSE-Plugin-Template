@@ -7,12 +7,10 @@ namespace Settings
 		bool Read();
 
 		class Holder :
-			public Singleton<Holder>
+			public REX::Singleton<Holder>
 		{
 		public:
 			bool Read();
-
-			inline static std::string FAKE_SETTING{ "General|bFakeSetting" };
 
 			template <typename T>
 			std::optional<T> GetStoredSetting(std::string a_settingName) {
@@ -46,5 +44,7 @@ namespace Settings
 
 			bool OverrideSettings();
 		};
+
+		inline static constexpr const char* FAKE_SETTING = "General|bFakeSetting";
 	}
 }

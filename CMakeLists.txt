@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 option(FULL_RELEASE "Finalizes the build, compressing everything into a BSA." OFF)
+option(OUTDATED "Applies 1.5.97 offsets/IDs." OFF)
 
 # -------- Project ----------
 project(
@@ -27,8 +28,13 @@ list(APPEND CMAKE_MODULE_PATH
 include(SKSEPlugin)
 set(SKSE_USE_XBYAK ON)
 add_compile_definitions(SKSE_SUPPORT_XBYAK)
-add_compile_definitions(SKYRIM_AE)
-add_compile_definitions(SKYRIM_SUPPORT_AE)
+
+if(OUTDATED)
+	add_compile_definitions(SKYRIM_OUTDATED)
+else()
+	add_compile_definitions(SKYRIM_AE)
+	add_compile_definitions(SKYRIM_SUPPORT_AE)
+endif()
 
 SKSEPlugin_Add(
 	${PROJECT_NAME}
@@ -38,6 +44,14 @@ SKSEPlugin_Add(
 		vcpkg.json
 	PRECOMPILE_HEADERS
 		src/common/PCH.h
+)
+
+find_package(jsoncpp CONFIG REQUIRED)
+
+target_link_libraries(
+		"${PROJECT_NAME}"
+		PRIVATE
+			JsonCpp::JsonCpp
 )
 
 set_target_properties(CommonLibSSE PROPERTIES
@@ -50,8 +64,10 @@ include(components.cmake)
 
 # ---- Post build ----
 if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
-	if(FULL_RELEASE)
-		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
+	if(OUTDATED)
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Outdated")
+	elseif (FULL_RELEASE)
+		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Full Release")
 	else()
 		set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME} - Test")
 	endif()

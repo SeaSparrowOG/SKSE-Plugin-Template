@@ -1,16 +1,17 @@
 {
-    "name": "template-plugin",
-    "version-string": "1.0.0",
-    "description": "Template for SKSE plugin built using commonlib. MIT License by default.",
-    "homepage": "https://github.com/SeaSparrowOG/SKSE-Plugin-Template",
-    "license": "MIT",
-    "dependencies": [
-        "boost-stl-interfaces",
-        "fmt",
-        "rsm-binary-io",
-        "spdlog",
-        "simpleini",
-        "xbyak"
-    ],
-    "builtin-baseline": "f9a99aa79c1309001e36572fa42d7d8edebfc451"
+  "name": "template-plugin",
+  "version-string": "1.0.0",
+  "description": "Template for SKSE plugin built using commonlib. MIT License by default.",
+  "homepage": "https://github.com/SeaSparrowOG/SKSE-Plugin-Template",
+  "license": "MIT",
+  "dependencies": [
+    "boost-stl-interfaces",
+    "fmt",
+    "jsoncpp",
+    "rsm-binary-io",
+    "spdlog",
+    "simpleini",
+    "xbyak"
+  ],
+  "builtin-baseline": "f4ea42fa5c2b993cf2b75725331616999e2e34d1"
 }
