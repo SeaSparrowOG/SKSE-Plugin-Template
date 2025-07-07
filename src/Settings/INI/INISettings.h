@@ -46,5 +46,9 @@ namespace Settings
 		};
 
 		inline static constexpr const char* FAKE_SETTING = "General|bFakeSetting";
+		inline static constexpr const std::uint8_t EXPECTED_COUNT = 1;
+		inline static constexpr const std::array<const char*, EXPECTED_COUNT> EXPECTED_SETTINGS = {
+			FAKE_SETTING 
+		};
 	}
 }

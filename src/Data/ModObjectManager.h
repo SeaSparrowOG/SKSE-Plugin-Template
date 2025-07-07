@@ -25,4 +25,6 @@ namespace Data
 			return object->As<T>();
 		return nullptr;
 	}
+
+	inline static constexpr const char* MOD_OBJECT = "FAKE_MOD_OBJECT";
 }
