@@ -26,10 +26,9 @@ namespace Settings::INI
 		logger::info("==========================================================");
 		logger::info("Reading and validating INI settings from {}.ini"sv, Plugin::NAME);
 
-		static constexpr uint64_t expectedSettingSize = 1;
-		std::array<std::string, expectedSettingSize> expectedSettings = {
-			FAKE_SETTING
-		};
+		if constexpr (EXPECTED_COUNT <= 0) {
+			return true;
+		}
 
 		try {
 			ini.SetUnicode();
@@ -39,8 +38,8 @@ namespace Settings::INI
 			ini.GetAllSections(sections);
 
 			if (sections.empty()) {
-				if constexpr (expectedSettingSize > 0) {
-					logger::critical("  >INI has no settings, but expected {}."sv, expectedSettingSize);
+				if constexpr (EXPECTED_COUNT > 0) {
+					logger::critical("  >INI has no settings, but expected {}."sv, EXPECTED_COUNT);
 					return false;
 				}
 				return true;
@@ -58,7 +57,7 @@ namespace Settings::INI
 				settingCount += sectionKeys.size();
 				for (const auto& key : sectionKeys) {
 					const std::string foundSetting = fmt::format<std::string>("{}|{}"sv, section.pItem, key.pItem);
-					if (std::find(expectedSettings.begin(), expectedSettings.end(), foundSetting) == expectedSettings.end()) {
+					if (std::find(EXPECTED_SETTINGS.begin(), EXPECTED_SETTINGS.end(), foundSetting) == EXPECTED_SETTINGS.end()) {
 						logger::critical("  >Unexpected setting found: {}", foundSetting);
 						return false;
 					}
