@@ -1,0 +1,15 @@
+string(REGEX REPLACE "^\"|\"$" "" SOURCE_SCRIPTS "${SOURCE_SCRIPTS}")
+string(REGEX REPLACE "^\"|\"$" "" OUTPUT_FOLDER "${OUTPUT_FOLDER}")
+
+file(TO_CMAKE_PATH "${SOURCE_SCRIPTS}" SOURCE_SCRIPTS)
+file(TO_CMAKE_PATH "${OUTPUT_FOLDER}" OUTPUT_FOLDER)
+
+if(EXISTS "${SOURCE_SCRIPTS}")
+    set(DEST_SRC "${OUTPUT_FOLDER}/Source/Scripts")
+    message(STATUS "Copying Papyrus source scripts from ${SOURCE_SCRIPTS} to ${DEST_SRC}")
+    file(REMOVE_RECURSE "${OUTPUT_FOLDER}/Source")
+    file(MAKE_DIRECTORY "${DEST_SRC}")
+    file(COPY "${SOURCE_SCRIPTS}/" DESTINATION "${DEST_SRC}")
+else()
+    message(STATUS "Papyrus source scripts not found at ${SOURCE_SCRIPTS}, skipping.")
+endif()

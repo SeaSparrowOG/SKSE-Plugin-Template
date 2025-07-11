@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.24)
 
 option(FULL_RELEASE "Finalizes the build, compressing everything into a BSA." OFF)
 option(OUTDATED "Applies 1.5.97 offsets/IDs." OFF)
+option(COPY_BSA "Copies any generated BSA to the MO2 directory (if specified)." ON)
+option(COPY_PEX "Copies any generated scripts to the MO2 directory (if specified). Applies after the BSA (if enabled)." OFF)
+option(COPY_PSC "Copies any script sources to the MO2 directory (if specified). Applies after the BSA (if enabled)." ON)
 
 # -------- Project ----------
 project(
@@ -119,17 +122,41 @@ if(DEFINED OUTPUT_FOLDER)
 			-P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Artifacts.cmake"
     )
 
-	# Loose scripts for non-release builds (why? Because I said so smile)
-    if(NOT FULL_RELEASE)
+    if(COPY_BSA)
+		add_custom_command(
+			TARGET "${PROJECT_NAME}"
+			POST_BUILD
+			COMMAND "${CMAKE_COMMAND}"
+				-DSRC_DIR="${PROJECT_SOURCE_DIR}/Data"
+				-DDST_DIR=${OUTPUT_FOLDER}
+				-DPROJECT_NAME=${PROJECT_NAME}
+				-DBINARY_DIR=${CMAKE_BINARY_DIR}
+				-P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Archive.cmake"
+			VERBATIM
+		)
+	endif()
+
+    if(COPY_PEX)
+        add_custom_command(
+        TARGET "${PROJECT_NAME}"
+        POST_BUILD
+        COMMAND "${CMAKE_COMMAND}"
+            -DCOMPILED_SCRIPTS="${CMAKE_BINARY_DIR}/Scripts"
+            -DOUTPUT_FOLDER="${OUTPUT_FOLDER}"
+            -P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Scripts.cmake"
+        VERBATIM
+		)
+    endif()
+
+	if(COPY_PSC)
         add_custom_command(
         TARGET "${PROJECT_NAME}"
         POST_BUILD
         COMMAND "${CMAKE_COMMAND}"
             -DSOURCE_SCRIPTS="${PROJECT_SOURCE_DIR}/Data/Source/Scripts"
-            -DCOMPILED_SCRIPTS="${CMAKE_BINARY_DIR}/Scripts"
             -DOUTPUT_FOLDER="${OUTPUT_FOLDER}"
-            -P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Scripts.cmake"
+            -P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Sources.cmake"
         VERBATIM
-    )
+		)
     endif()
 endif()

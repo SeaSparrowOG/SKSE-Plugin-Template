@@ -8,12 +8,6 @@ if(EXISTS "${ESP_SRC}")
     file(COPY "${ESP_SRC}" DESTINATION "${DST_DIR}")
 endif()
 
-set(BSA_SRC "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.bsa")
-if(EXISTS "${BSA_SRC}")
-    message(STATUS "Copying ${BSA_SRC} to ${DST_DIR}")
-    file(COPY "${BSA_SRC}" DESTINATION "${DST_DIR}")
-endif()
-
 set(CONFIG_SRC "${SRC_DIR}/SKSE/Plugins/${PROJECT_NAME}")
 set(CONFIG_DST "${DST_DIR}/SKSE/Plugins/${PROJECT_NAME}")
 if(EXISTS "${CONFIG_SRC}")

@@ -41,13 +41,20 @@
       "hidden": true,
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "FULL_RELEASE": true
+        "FULL_RELEASE": true,
+        "COPY_BSA": true,
+        "COPY_PSC": true
       }
     },
     {
       "name": "test",
       "hidden": true,
-      "binaryDir": "${sourceDir}/build-test"
+      "binaryDir": "${sourceDir}/build-test",
+      "cacheVariables": {
+        "COPY_PEX": true,
+        "COPY_BSA": true,
+        "COPY_PSC": true
+      }
     },
     {
       "name": "outdated",
@@ -55,7 +62,9 @@
       "binaryDir": "${sourceDir}/build-outdated",
       "cacheVariables": {
         "FULL_RELEASE": true,
-        "OUTDATED": true
+        "OUTDATED": true,
+        "COPY_BSA": true,
+        "COPY_PSC": true
       }
     },
     {
