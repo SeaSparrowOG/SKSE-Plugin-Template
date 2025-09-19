@@ -10,10 +10,11 @@ namespace Settings
 			public REX::Singleton<Holder>
 		{
 		public:
-			bool Read();
+			bool StoreSettings();
+			void DumpSettings();
 
 			template <typename T>
-			std::optional<T> GetStoredSetting(std::string a_settingName) {
+			std::optional<T> GetStoredSetting(const std::string& a_settingName) {
 				if constexpr (std::is_same_v<T, float>) {
 					auto it = floatSettings.find(a_settingName);
 					if (it != floatSettings.end()) return it->second;
@@ -45,10 +46,18 @@ namespace Settings
 			bool OverrideSettings();
 		};
 
-		inline static constexpr const char* FAKE_SETTING = "General|bFakeSetting";
+		inline static constexpr const char* FAKE_SETTING = "Fake|bSetting";
+
 		inline static constexpr const std::uint8_t EXPECTED_COUNT = 1;
+
 		inline static constexpr const std::array<const char*, EXPECTED_COUNT> EXPECTED_SETTINGS = {
-			FAKE_SETTING 
+			FAKE_SETTING
 		};
+
+		template <typename T>
+		std::optional<T> GetSetting(const std::string& a_settingName) {
+			auto* holder = Holder::GetSingleton();
+			return holder ? holder->GetStoredSetting<T>(a_settingName) : std::nullopt;
+		}
 	}
 }

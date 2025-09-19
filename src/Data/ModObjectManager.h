@@ -4,7 +4,7 @@ namespace Data
 {
 	bool PreloadModObjects();
 
-	class ModObjectManager : 
+	class ModObjectManager :
 		public REX::Singleton<ModObjectManager>
 	{
 	public:
@@ -15,6 +15,8 @@ namespace Data
 
 		[[nodiscard]] RE::TESForm* Get(std::string_view a_key) const;
 	private:
+		bool Verify();
+
 		util::istring_map<RE::TESForm*> objects;
 	};
 
@@ -26,5 +28,9 @@ namespace Data
 		return nullptr;
 	}
 
-	inline static constexpr const char* MOD_OBJECT = "FAKE_MOD_OBJECT";
+	inline static constexpr const char* MOD_OBJECT_PROXY = "RemoveMe";
+
+	inline static constexpr std::array<const char*, 1> EXPECTED_OBJECTS = {
+		MOD_OBJECT_PROXY
+	};
 }

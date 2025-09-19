@@ -1,0 +1,3 @@
+Scriptname TemplateProject_ModObjectsScript
+
+Ammo Property RemoveMe Auto

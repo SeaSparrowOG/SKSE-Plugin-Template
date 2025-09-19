@@ -14,6 +14,12 @@ namespace Settings::JSON
 
 	bool Reader::Read()
 	{
+		dataHandler = RE::TESDataHandler::GetSingleton();
+		if (!dataHandler) {
+			logger::critical("  >Failed to get the game's Data Handler."sv);
+			return false;
+		}
+
 		std::string jsonFolder = fmt::format(R"(.\Data\SKSE\Plugins\{})"sv, Plugin::NAME);
 		logger::info("  >Settings folder: {}."sv, jsonFolder);
 		if (!std::filesystem::exists(jsonFolder)) {
@@ -88,6 +94,7 @@ namespace Settings::JSON
 				return false;
 			}
 		}
+		settings.push_back(std::move(a_json));
 		return true;
 	}
 }
@@ -137,7 +144,7 @@ namespace Settings::JSON
 		}
 	}
 
-	inline std::vector<std::string> Reader::split(const std::string& a_str, const std::string& a_delimiter)
+	std::vector<std::string> Reader::split(const std::string& a_str, const std::string& a_delimiter)
 	{
 		std::vector<std::string> result;
 		size_t start = 0;
@@ -153,7 +160,7 @@ namespace Settings::JSON
 		return result;
 	}
 
-	inline bool Reader::is_only_hex(std::string_view a_str, bool a_requirePrefix)
+	bool Reader::is_only_hex(std::string_view a_str, bool a_requirePrefix)
 	{
 		if (!a_requirePrefix) {
 			return std::ranges::all_of(a_str, [](unsigned char ch) {
@@ -168,7 +175,7 @@ namespace Settings::JSON
 		return false;
 	}
 
-	inline std::string Reader::tolower(std::string_view a_str)
+	std::string Reader::tolower(std::string_view a_str)
 	{
 		std::string result(a_str);
 		std::ranges::transform(result, result.begin(), [](unsigned char ch) { return static_cast<unsigned char>(std::tolower(ch)); });

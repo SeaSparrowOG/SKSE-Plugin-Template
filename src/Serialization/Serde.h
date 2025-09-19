@@ -10,7 +10,7 @@ namespace Serialization
 	void SaveCallback(SKSE::SerializationInterface* a_intfc);
 	void LoadCallback(SKSE::SerializationInterface* a_intfc);
 	void RevertCallback(SKSE::SerializationInterface* a_intfc);
-	
+
 	/// <summary>
 	/// Debug tool. When encountering unexpected RecordTypes, converts them to a readable string (HDEC, STEN, etc).
 	/// </summary>
@@ -60,5 +60,24 @@ namespace Serialization
 			return false;
 		}
 		return true;
+	}
+
+	/// <summary>
+	/// Helper function. Fetches the form found inside the serialization interface, and resolves it.
+	/// </summary>
+	/// <typeparam name="T">Cast the form as T</typeparam>
+	/// <param name="a_intfc">The serialization interface provided by SKSE.</param>
+	/// <returns>A pointer to T* if found, nullptr otherwise.</returns>
+	template <typename T>
+	T* GetFormFromInterface(SKSE::SerializationInterface* a_intfc) {
+		RE::FormID oldID = 0;
+		if (!a_intfc->ReadRecordData(oldID)) {
+			return nullptr;
+		}
+		RE::FormID newID = 0;
+		if (!a_intfc->ResolveFormID(oldID, newID)) {
+			return nullptr;
+		}
+		return RE::TESForm::LookupByID<T>(newID);
 	}
 }

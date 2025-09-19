@@ -9,13 +9,17 @@ static void MessageEventCallback(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		if (!Settings::JSON::Read()) {
-			SKSE::stl::report_and_fail("Failed to load JSON settings. Check the log for more information."sv);
-		}
 		SECTION_SEPARATOR;
 		if (!Data::PreloadModObjects()) {
 			SKSE::stl::report_and_fail("Failed to preload mod objects. Check the log for more information."sv);
 		}
+		SECTION_SEPARATOR;
+		if (!Settings::JSON::Read()) {
+			SKSE::stl::report_and_fail("Failed to read JSON settings. Check the log for more information."sv);
+		}
+
+		Settings::JSON::Reader::GetSingleton()->settings.clear();
+
 		SECTION_SEPARATOR;
 		logger::info("Finished startup tasks, enjoy your game!"sv);
 		break;
@@ -52,7 +56,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 	const auto ver = a_skse->RuntimeVersion();
 #ifdef SKYRIM_AE
-	if (ver < SKSE::RUNTIME_1_6_1130) {
+	if (ver < SKSE::RUNTIME_SSE_LATEST) {
 #else
 	if (ver < SKSE::RUNTIME_1_5_39) {
 #endif
@@ -61,20 +65,17 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	}
 
 	return true;
-}
+	}
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_skse)
 {
 	SKSE::Init(a_skse);
-
-	SECTION_SEPARATOR;
-	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 	logger::info("Author: SeaSparrow"sv);
 	SECTION_SEPARATOR;
 
 #ifdef SKYRIM_AE
 	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_1_6_1130) {
+	if (ver < SKSE::RUNTIME_SSE_LATEST) {
 		return false;
 	}
 #endif
@@ -84,14 +85,12 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	if (!Settings::INI::Read()) {
 		SKSE::stl::report_and_fail("Failed to load INI settings. Check the log for more information."sv);
 	}
-	SECTION_SEPARATOR;
 	if (!Hooks::Install()) {
 		SKSE::stl::report_and_fail("Failed to install hooks. Check the log for more information."sv);
 	}
 	SECTION_SEPARATOR;
 
 	SKSE::GetPapyrusInterface()->Register(Papyrus::RegisterFunctions);
-	SECTION_SEPARATOR;
 
 	const auto messaging = SKSE::GetMessagingInterface();
 	messaging->RegisterListener(&MessageEventCallback);

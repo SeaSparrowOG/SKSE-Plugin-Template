@@ -8,6 +8,18 @@ if(EXISTS "${ESP_SRC}")
     file(COPY "${ESP_SRC}" DESTINATION "${DST_DIR}")
 endif()
 
+set(ESL_SRC "${SRC_DIR}/${PROJECT_NAME}.esl")
+if(EXISTS "${ESL_SRC}")
+    message(STATUS "Copying ${ESL_SRC} to ${DST_DIR}")
+    file(COPY "${ESL_SRC}" DESTINATION "${DST_DIR}")
+endif()
+
+set(ESM_SRC "${SRC_DIR}/${PROJECT_NAME}.esm")
+if(EXISTS "${ESM_SRC}")
+    message(STATUS "Copying ${ESM_SRC} to ${DST_DIR}")
+    file(COPY "${ESM_SRC}" DESTINATION "${DST_DIR}")
+endif()
+
 set(CONFIG_SRC "${SRC_DIR}/SKSE/Plugins/${PROJECT_NAME}")
 set(CONFIG_DST "${DST_DIR}/SKSE/Plugins/${PROJECT_NAME}")
 if(EXISTS "${CONFIG_SRC}")
