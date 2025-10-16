@@ -14,13 +14,6 @@ static void MessageEventCallback(SKSE::MessagingInterface::Message* a_msg)
 			SKSE::stl::report_and_fail("Failed to preload mod objects. Check the log for more information."sv);
 		}
 		SECTION_SEPARATOR;
-		if (!Settings::JSON::Read()) {
-			SKSE::stl::report_and_fail("Failed to read JSON settings. Check the log for more information."sv);
-		}
-
-		Settings::JSON::Reader::GetSingleton()->settings.clear();
-
-		SECTION_SEPARATOR;
 		logger::info("Finished startup tasks, enjoy your game!"sv);
 		break;
 	default:
@@ -85,6 +78,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_
 	if (!Settings::INI::Read()) {
 		SKSE::stl::report_and_fail("Failed to load INI settings. Check the log for more information."sv);
 	}
+	SECTION_SEPARATOR;
+	if (!Settings::JSON::Read()) {
+		SKSE::stl::report_and_fail("Failed to read JSON settings. Check the log for more information."sv);
+	}
+	SECTION_SEPARATOR;
 	if (!Hooks::Install()) {
 		SKSE::stl::report_and_fail("Failed to install hooks. Check the log for more information."sv);
 	}

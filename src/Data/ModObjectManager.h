@@ -28,9 +28,8 @@ namespace Data
 		return nullptr;
 	}
 
-	inline static constexpr const char* MOD_OBJECT_PROXY = "RemoveMe";
+	inline static constexpr std::size_t EXPECTED_MOD_OBJECT_COUNT = 0;
 
-	inline static constexpr std::array<const char*, 1> EXPECTED_OBJECTS = {
-		MOD_OBJECT_PROXY
+	inline static constexpr std::array<const char*, EXPECTED_MOD_OBJECT_COUNT> EXPECTED_OBJECTS = {
 	};
 }

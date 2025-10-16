@@ -24,10 +24,6 @@ namespace Settings::INI
 		size_t settingCount = 0;
 		logger::info("Reading and validating INI settings from {}.ini"sv, Plugin::NAME);
 
-		if constexpr (EXPECTED_COUNT <= 0) {
-			return true;
-		}
-
 		try {
 			ini.SetUnicode();
 			ini.LoadFile(iniPath.data());

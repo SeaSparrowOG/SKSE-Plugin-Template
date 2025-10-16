@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.24)
 
 option(FULL_RELEASE "Finalizes the build, compressing everything into a BSA." OFF)
 option(OUTDATED "Applies 1.5.97 offsets/IDs." OFF)
-option(COPY_BSA "Copies any generated BSA to the MO2 directory (if specified)." ON)
-option(COPY_PEX "Copies any generated scripts to the MO2 directory (if specified). Applies after the BSA (if enabled)." OFF)
+option(COPY_BSA "Copies any generated BSA to the MO2 directory (if specified)." OFF)
+option(COPY_PEX "Copies any generated scripts to the MO2 directory (if specified). Applies after the BSA (if enabled)." ON)
 option(COPY_PSC "Copies any script sources to the MO2 directory (if specified). Applies after the BSA (if enabled)." ON)
 
 # -------- Project ----------

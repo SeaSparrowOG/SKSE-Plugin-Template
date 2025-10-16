@@ -46,12 +46,9 @@ namespace Settings
 			bool OverrideSettings();
 		};
 
-		inline static constexpr const char* FAKE_SETTING = "Fake|bSetting";
-
-		inline static constexpr const std::uint8_t EXPECTED_COUNT = 1;
+		inline static constexpr const std::uint8_t EXPECTED_COUNT = 0;
 
 		inline static constexpr const std::array<const char*, EXPECTED_COUNT> EXPECTED_SETTINGS = {
-			FAKE_SETTING
 		};
 
 		template <typename T>
