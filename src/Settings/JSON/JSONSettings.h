@@ -1,29 +1,10 @@
 #pragma once
 
-#include <json/json.h>
-
 namespace Settings
 {
 	namespace JSON
 	{
 		bool Read();
-
-		enum class Error
-		{
-			None, // All good.
-
-			NotStringOrArray,  // Provided Json::Value is neither a string nor an array.
-			NonHomogenousArray // Provided Json::Value is an array, but its elements are of different types.
-		};
-
-		/// <summary>
-		/// Extracts all individual strings from a given Json::Value into a given string vector.
-		/// </summary>
-		/// <param name="a_value">The Json::Value to retrieve the strings from. If it isn't a String object OR a homogeneous Array of Strings object, returns an empty vector + an error.</param>
-		/// <param name="a_result">The vector to place the results in. Note that the vector is modified.</param>
-		/// <returns>An error code. None means success.</returns>
-		Error LoadFormStrings(const Json::Value& a_value,
-			std::vector<std::string>& a_result);
 
 		inline static constexpr int PLUGIN_INDEX = 0;
 		inline static constexpr int FORMID_INDEX = 1;
@@ -113,7 +94,7 @@ namespace Settings
 
 			auto response = QueryData<T>{};
 
-			static auto* dh = RE::TESDataHandler::GetSingleton();
+			auto* dh = RE::TESDataHandler::GetSingleton();
 			if (!dh) {
 				response.status = QueryResult::GenericFailure;
 				return response;
@@ -122,7 +103,7 @@ namespace Settings
 			static auto* tweaks = REX::W32::GetModuleHandleW(L"po3_Tweaks.dll");
 
 			auto parts = clib_util::string::split(a_str, "|");
-			RE::TESFile* mod = nullptr;
+			const RE::TESFile* mod;
 			RE::FormID formID = 0;
 			RE::TESForm* form = nullptr;
 			T* castForm = nullptr;
@@ -150,7 +131,7 @@ namespace Settings
 				return response;
 			case 2:
 				// FormID
-				if (!clib_util::string::is_only_hex(parts[FORMID_INDEX], false)) {
+				if (!clib_util::string::is_only_hex(parts[FORMID_INDEX], true)) {
 					response.status = QueryResult::FormatError;
 					return response;
 				}
@@ -161,7 +142,7 @@ namespace Settings
 					response.status = QueryResult::FileNotFound;
 					return response;
 				}
-				form = dh->LookupForm<RE::TESForm>(formID, mod);
+				form = dh->LookupForm(formID, mod->GetFilename());
 				if (!form) {
 					response.status = QueryResult::FormNotInFile;
 					return response;
