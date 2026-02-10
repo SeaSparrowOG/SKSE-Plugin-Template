@@ -49,12 +49,19 @@ SKSEPlugin_Add(
 		src/common/PCH.h
 )
 
+find_path(CLIB_UTIL_INCLUDE_DIRS "ClibUtil/utils.hpp")
 find_package(jsoncpp CONFIG REQUIRED)
 
 target_link_libraries(
 		"${PROJECT_NAME}"
 		PRIVATE
 			JsonCpp::JsonCpp
+)
+
+target_include_directories(
+	${PROJECT_NAME}
+	PRIVATE
+		${CLIB_UTIL_INCLUDE_DIRS}
 )
 
 set_target_properties(CommonLibSSE PROPERTIES
