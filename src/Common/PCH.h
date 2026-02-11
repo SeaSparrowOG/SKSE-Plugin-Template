@@ -4,9 +4,14 @@
 #include "SKSE/SKSE.h"
 #include "REX/REX.h"
 
+#define W32_LEAN_AND_MEAN
+#include <Windows.h>
+#include "ClibUtil/utils.hpp"
+
 #include <unordered_set>
 #include <fstream>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <json/json.h>
 
 #include "Plugin.h"
 

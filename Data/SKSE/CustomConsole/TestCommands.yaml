@@ -1,0 +1,8 @@
+name: test
+alias: test
+script: TestScript
+help: Tests for the Custom Console integration.
+subs:
+  - name: getversion
+    alias: gvs
+    func: GetVersion
