@@ -1,82 +1,5 @@
 #include "Serde.h"
 
-namespace
-{
-	/// <summary>
-	/// Debug tool. When encountering unexpected RecordTypes, converts them to a readable string (HDEC, STEN, etc).
-	/// </summary>
-	/// <param name="a_typeCode">The unexpected record type.</param>
-	/// <returns>The unexpected record type as a string.</returns>
-	inline std::string DecodeTypeCode(std::uint32_t a_typeCode)
-	{
-		std::string result(4, '\0');
-
-		// Extract bytes from most significant to least
-		result[0] = static_cast<char>((a_typeCode >> 24) & 0xFF);
-		result[1] = static_cast<char>((a_typeCode >> 16) & 0xFF);
-		result[2] = static_cast<char>((a_typeCode >> 8) & 0xFF);
-		result[3] = static_cast<char>(a_typeCode & 0xFF);
-
-		return result;
-	}
-
-	/// <summary>
-	/// Helper function. Encodes a string into the interface.
-	/// </summary>
-	/// <param name="a_intfc">The serialization interface provided by SKSE.</param>
-	/// <param name="a_str">The string to serialize.</param>
-	/// <returns>True if encoding is successful, false otherwise.</returns>
-	inline static bool WriteString(SKSE::SerializationInterface* a_intfc,
-		const std::string& a_str)
-	{
-		std::size_t size = a_str.length() + 1;
-		return a_intfc->WriteRecordData(size) && a_intfc->WriteRecordData(a_str.data(), static_cast<std::uint32_t>(size));
-	}
-
-	/// <summary>
-	/// Helper function. Decodes a string from the interface, and stores it in a given variable.
-	/// </summary>
-	/// <param name="a_intfc">The serialization interface provided by SKSE.</param>
-	/// <param name="a_str">The result is stored here.</param>
-	/// <returns>True if successful, false otherwise.</returns>
-	inline static bool ReadString(SKSE::SerializationInterface* a_intfc,
-		std::string& a_str)
-	{
-		std::size_t size = 0;
-		if (!a_intfc->ReadRecordData(size)) {
-			return false;
-		}
-		a_str.reserve(size);
-		a_str.resize(size);
-		if (!a_intfc->ReadRecordData(a_str.data(), static_cast<std::uint32_t>(size))) {
-			return false;
-		}
-		if (!a_str.empty() && a_str.back() == '\0') {
-			a_str.pop_back();
-		}
-		return true;
-	}
-
-	/// <summary>
-	/// Helper function. Fetches the form found inside the serialization interface, and resolves it.
-	/// </summary>
-	/// <typeparam name="T">Cast the form as T</typeparam>
-	/// <param name="a_intfc">The serialization interface provided by SKSE.</param>
-	/// <returns>A pointer to T* if found, nullptr otherwise.</returns>
-	template <typename T>
-	inline static T* GetFormFromInterface(SKSE::SerializationInterface* a_intfc) {
-		RE::FormID oldID = 0;
-		if (!a_intfc->ReadRecordData(oldID)) {
-			return nullptr;
-		}
-		RE::FormID newID = 0;
-		if (!a_intfc->ResolveFormID(oldID, newID)) {
-			return nullptr;
-		}
-		return RE::TESForm::LookupByID<T>(newID);
-	}
-}
-
 namespace Serialization {
 	void SaveCallback(SKSE::SerializationInterface* a_intfc) {
 		logger::info("Starting save..."sv);
@@ -122,7 +45,6 @@ namespace Serialization {
 		if (recordObjectMap.empty()) {
 			return success;
 		}
-
 		for (auto& obj : recordObjectMap) {
 			bool serializableSuccess = obj.second && obj.second->Save(a_intfc);
 			if (!serializableSuccess) {
@@ -177,17 +99,23 @@ namespace Serialization {
 		return success;
 	}
 
-	void ObjectManager::RegisterObject(Serializable& a_newObject) {
-		auto recordType = a_newObject.GetSerializationID();
+	void ObjectManager::RegisterObject(Serializable* a_newObject) {
+		if (!a_newObject) {
+			SKSE::stl::report_and_fail("Attempted to register nullptr in Serialization Manager."sv);
+		}
+		auto recordType = a_newObject->GetSerializationID();
 		if (recordObjectMap.contains(recordType)) {
 			SKSE::stl::report_and_fail(
 				fmt::format("Duplicate serialization registration for record type {}", DecodeTypeCode(recordType)));
 		}
-		recordObjectMap.emplace(recordType, &a_newObject);
+		recordObjectMap.emplace(recordType, a_newObject);
 	}
 
-	void ObjectManager::UnRegisterObject(Serializable& a_object) {
-		auto it = recordObjectMap.find(a_object.GetSerializationID());
+	void ObjectManager::UnRegisterObject(Serializable* a_object) {
+		if (!a_object) {
+			SKSE::stl::report_and_fail("Attempted to register nullptr in Serialization Manager."sv);
+		}
+		auto it = recordObjectMap.find(a_object->GetSerializationID());
 		if (it != recordObjectMap.end()) {
 			recordObjectMap.erase(it);
 		}
@@ -201,7 +129,7 @@ namespace Serialization {
 		}
 
 		serdeID = a_id;
-		manager->RegisterObject(*this);
+		manager->RegisterObject(this);
 		return true;
 	}
 
