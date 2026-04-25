@@ -5,6 +5,7 @@
 #include "REX/REX.h"
 
 #define W32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include "ClibUtil/utils.hpp"
 

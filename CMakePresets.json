@@ -1,10 +1,10 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 21,
-        "patch": 0
-    },
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "cmake-dev",
@@ -75,16 +75,16 @@
       }
     }
   ],
-    "buildPresets": [
-        {
-            "name": "Release",
-            "configurePreset": "vs2022-windows-vcpkg-release",
-            "configuration": "Release"
-        },
-        {
-            "name": "Test",
-            "configurePreset": "vs2022-windows-vcpkg-test",
-            "configuration": "Debug"
-        }
-    ]
+  "buildPresets": [
+    {
+      "name": "Release",
+      "configurePreset": "vs2022-windows-vcpkg-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "Test",
+      "configurePreset": "vs2022-windows-vcpkg-test",
+      "configuration": "Debug"
+    }
+  ]
 }

@@ -135,7 +135,18 @@ namespace Serialization {
 
 	std::uint32_t Serializable::GetSerializationID() const { return serdeID; }
 
-	bool Serializable::Revert([[maybe_unused]] SKSE::SerializationInterface* a_intfc) {
+	bool Serializable::Save(SKSE::SerializationInterface* a_intfc) {
+		(void)a_intfc;
+		return false;
+	}
+
+	bool Serializable::Load(SKSE::SerializationInterface* a_intfc) {
+		(void)a_intfc;
+		return false;
+	}
+
+	bool Serializable::Revert(SKSE::SerializationInterface* a_intfc) {
+		(void)a_intfc;
 		return true;
 	}
 }

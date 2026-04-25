@@ -135,19 +135,17 @@ namespace Settings::INI
 	void Holder::DumpSettings()
 	{
 		logger::info("Stored Settings:"sv);
-		for (const auto* setting : EXPECTED_SETTINGS) {
-			if (stringSettings.contains(setting)) {
-				logger::info("  >{}: {}", setting, stringSettings.at(setting));
-			}
-			else if (floatSettings.contains(setting)) {
-				logger::info("  >{}: {}", setting, floatSettings.at(setting));
-			}
-			else if (boolSettings.contains(setting)) {
-				logger::info("  >{}: {}", setting, boolSettings.at(setting));
-			}
-			else if (longSettings.contains(setting)) {
-				logger::info("  >{}: {}", setting, longSettings.at(setting));
-			}
+		for (const auto& [name, value] : boolSettings) {
+			logger::info("  >{} - {}", name, value ? "TRUE" : "FALSE");
+		}
+		for (const auto& [name, value] : stringSettings) {
+			logger::info("  >{} - {}", name, value);
+		}
+		for (const auto& [name, value] : longSettings) {
+			logger::info("  >{} - {}", name, value);
+		}
+		for (const auto& [name, value] : floatSettings) {
+			logger::info("  >{} - {}", name, value);
 		}
 	}
 
