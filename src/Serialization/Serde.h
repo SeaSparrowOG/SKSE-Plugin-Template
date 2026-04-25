@@ -21,12 +21,14 @@ namespace Serialization
 	class Serializable
 	{
 	public:
-		virtual bool Save(SKSE::SerializationInterface* a_intfc) = 0;
-		virtual bool Load(SKSE::SerializationInterface* a_intfc) = 0;
+		virtual bool Save(SKSE::SerializationInterface* a_intfc);
+		virtual bool Load(SKSE::SerializationInterface* a_intfc);
 		virtual bool Revert(SKSE::SerializationInterface* a_intfc);
 
 		bool Register(std::uint32_t a_id);
 		std::uint32_t GetSerializationID() const;
+
+		virtual ~Serializable() = default;
 	private:
 		std::uint32_t serdeID{ 0 };
 	};
@@ -36,7 +38,7 @@ namespace Serialization
 	public:
 		bool Save(SKSE::SerializationInterface* a_intfc);
 		bool Load(SKSE::SerializationInterface* a_intfc);
-		bool Revert([[maybe_unused]] SKSE::SerializationInterface* a_intfc);
+		bool Revert(SKSE::SerializationInterface* a_intfc);
 
 		void RegisterObject(Serializable* a_newObject);
 		void UnRegisterObject(Serializable* a_object);
