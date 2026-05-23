@@ -76,6 +76,39 @@ set(INI_PATH "${SKSE_PLUGINS_DIR}/${PROJECT_NAME}.ini")
 set(PAPYRUS_SOURCE_DIR "${DATA_DIR}/Source/Scripts")
 set(CUSTOM_CONSOLE_DIR "${SKSE_DIR}/CustomConsole")
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
+
+if (MSVC)
+	target_compile_options(
+		${PROJECT_NAME}
+		PRIVATE
+			/sdl                    # Enable Additional Security Checks
+			/utf-8                  # Set Source and Executable character sets to UTF-8
+			/Zi                     # Debug Information Format
+
+			/permissive-            # Standards conformance
+			/Zc:preprocessor        # Enable preprocessor conformance mode
+			/Zc:__cplusplus
+			
+			/wd4200                 # nonstandard extension used : zero-sized array in struct/union
+			/W4                     # More warnings 
+			/WX                     # Treat all warnings as errors
+			/external:anglebrackets # Ignore warnings for external resources.
+			/external:W0            # Same as above
+			
+			"$<$<CONFIG:DEBUG>:>"
+			"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"
+	)
+
+	target_link_options(
+		${PROJECT_NAME}
+		PRIVATE
+			"$<$<CONFIG:DEBUG>:/INCREMENTAL;/OPT:NOREF;/OPT:NOICF>"
+			"$<$<CONFIG:RELEASE>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>"
+	)
+endif ()
+
 if (IS_DIRECTORY PAPYRUS_SOURCE_DIR)
 	install(
 		DIRECTORY "${DATA_DIR}/Source"
