@@ -1,5 +1,8 @@
 #include "JSONSettings.h"
 
+#include <ClibUtil/editorID.hpp>
+#include <ClibUtil/string.hpp>
+
 namespace Settings::JSON
 {
 	bool Holder::Load() {

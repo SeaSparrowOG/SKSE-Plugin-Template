@@ -8,8 +8,8 @@ namespace Data
 		public REX::Singleton<ModObjectManager>
 	{
 	public:
-		const std::string QuestName = fmt::format("{}_ModObjectsQuest"sv, Plugin::NAME);
-		const std::string ScriptName = fmt::format("{}_ModObjectsScript"sv, Plugin::NAME);
+		const std::string QuestName = fmt::format("{}_ModObjectsQuest", Plugin::NAME);
+		const std::string ScriptName = fmt::format("{}_ModObjectsScript", Plugin::NAME);
 
 		bool PreLoad();
 

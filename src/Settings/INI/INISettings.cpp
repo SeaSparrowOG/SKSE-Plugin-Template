@@ -1,6 +1,6 @@
 #include "INISettings.h"
 
-#include <SimpleIni.h>
+#include <ClibUtil/simpleINI.hpp>
 #undef max
 #undef min
 
