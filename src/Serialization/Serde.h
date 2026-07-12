@@ -2,13 +2,9 @@
 
 namespace Serialization
 {
-	constexpr std::uint32_t Version = 1;
+	inline constexpr std::uint32_t Version = 1;
 	inline constexpr std::uint32_t ID = 'TRJT';
 	static_assert(Plugin::NAME == "TemplateProject"sv || ID != 'TRJT', "Make sure to use a unique ID for serialization.");
-
-	void SaveCallback(SKSE::SerializationInterface* a_intfc);
-	void LoadCallback(SKSE::SerializationInterface* a_intfc);
-	void RevertCallback(SKSE::SerializationInterface* a_intfc);
 
 	/// <summary>
 	/// Important notes:
