@@ -8,5 +8,5 @@ namespace Papyrus {
 	using VM = RE::BSScript::Internal::VirtualMachine;
 	using StackID = RE::VMStackID;
 	inline auto script = fmt::format("SEA_{}"sv, Plugin::NAME);
-	bool RegisterFunctions(VM* a_vm);
+	bool RegisterFunctions();
 }

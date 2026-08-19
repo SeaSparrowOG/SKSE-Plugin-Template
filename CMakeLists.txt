@@ -109,24 +109,6 @@ if (MSVC)
 	)
 endif ()
 
-if (IS_DIRECTORY PAPYRUS_SOURCE_DIR)
-	install(
-		DIRECTORY "${DATA_DIR}/Source"
-		DESTINATION "."
-		COMPONENT components
-	)
-endif()
-
-if (IS_DIRECTORY CUSTOM_CONSOLE_DIR)
-	install(
-		DIRECTORY "${SKSE_DIR}/CustomConsole"
-		DESTINATION "."
-		COMPONENT components
-	)
-endif()
-
-include(components.cmake)
-
 # ---- Post build ----
 if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
 	if (FULL_RELEASE)
@@ -136,12 +118,11 @@ if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
 	endif()
 endif()
 
+set(ARTIFACT_DIR "${CMAKE_BINARY_DIR}/Artifacts")
+
 # ---- Compile Papyrus Scripts and Pack Into Archive ----
 include(Papyrus)
 include(BSArchive)
-
-set(COPY_BSA OFF)
-set(COPY_SCRIPTS  OFF)
 
 if(EXISTS "${PAPYRUS_SOURCE_DIR}" AND IS_DIRECTORY "${Skyrim64Path}")
 	file(GLOB ${PROJECT_NAME}_SOURCES
@@ -162,14 +143,13 @@ if(EXISTS "${PAPYRUS_SOURCE_DIR}" AND IS_DIRECTORY "${Skyrim64Path}")
 		"BSA"
 		OUTPUT "${PROJECT_NAME}.bsa"
 		FORMAT SSE
-		FILES ${Papyrus_OUTPUT}
-	)
-	
+		FILES 
+			${Papyrus_OUTPUT}
+		PREFIX 
+			"${CMAKE_CURRENT_SOURCE_DIR}/Data"
+	)	
+
 	set(COPY_SCRIPTS ON)
-	if(FULL_RELEASE)
-		set(COPY_BSA ON)
-	endif()
-	
 elseif(EXISTS "${PAPYRUS_SOURCE_DIR}" AND NOT IS_DIRECTORY "${Skyrim64Path}")
 	message(STATUS "Scripts exist in the Data directory, but Skyrim's path was not found, compilation will be skipped.")
 else()
@@ -207,17 +187,14 @@ if(DEFINED OUTPUT_FOLDER)
 				-DOUTPUT_FOLDER=${OUTPUT_FOLDER}
 				-P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Scripts.cmake"
 		)
-
-		if(COPY_BSA)
-			list(APPEND POST_BUILD_COMMANDS
-				COMMAND "${CMAKE_COMMAND}"
-					-DSRC_DIR=${DATA_DIR}
-					-DDST_DIR=${OUTPUT_FOLDER}
-					-DPROJECT_NAME=${PROJECT_NAME}
-					-DBINARY_DIR=${CMAKE_BINARY_DIR}
-					-P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Archive.cmake"
-			)
-		endif()
+		list(APPEND POST_BUILD_COMMANDS
+			COMMAND "${CMAKE_COMMAND}"
+				-DSRC_DIR=${DATA_DIR}
+				-DDST_DIR=${OUTPUT_FOLDER}
+				-DPROJECT_NAME=${PROJECT_NAME}
+				-DBINARY_DIR=${CMAKE_BINARY_DIR}
+				-P "${PROJECT_SOURCE_DIR}/CMake/Scripts/CMake-Copy-Archive.cmake"
+		)
 	endif()
 	
 	
@@ -238,3 +215,11 @@ if(DEFINED OUTPUT_FOLDER)
 else()
 	message(STATUS "Output folder environment variable not set, build files will not be automatically deployed to MO2.")
 endif()
+
+# ---- Github Release Stuff ----
+install(
+	FILES
+		"${DATA_DIR}/SKSE/Plugins/${PROJECT_NAME}.ini"
+	DESTINATION "SKSE/Plugins"
+	COMPONENT components
+)

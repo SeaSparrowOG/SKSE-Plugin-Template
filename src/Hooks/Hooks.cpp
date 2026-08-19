@@ -1,9 +1,9 @@
-#include "Hooks/hooks.h"
+#include "Hooks.h"
 
 namespace Hooks {
 	bool Install() {
-		SECTION_SEPARATOR;
 		logger::info("Installing hooks..."sv);
+		logger::info("  - Done!"sv);
 		return true;
 	}
 }

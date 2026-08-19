@@ -1,21 +1,24 @@
 #include "Data/ModObjectManager.h"
 #include "Hooks/Hooks.h"
 #include "Papyrus/Papyrus.h"
-#include "Serialization/Serde.h"
 #include "Settings/INI/INISettings.h"
 #include "Settings/JSON/JSONSettings.h"
 
 static void MessageEventCallback(SKSE::MessagingInterface::Message* a_msg)
 {
+	static auto* jsonHolder = Settings::JSON::Holder::GetSingleton();
+	if (!jsonHolder) {
+		SKSE::stl::report_and_fail("Failed to get internal JSON logger."sv);
+	}
+
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		SECTION_SEPARATOR;
 		if (!Data::PreloadModObjects()) {
-			SKSE::stl::report_and_fail("Failed to preload mod objects. Check the log for more information."sv);
+			SKSE::stl::report_and_fail(
+				fmt::format("Failed to preload mod objects. Check the log at Documents/My Games/Skyrim Special Edition/{}.log for more information."sv, Plugin::NAME));
 		}
 		SECTION_SEPARATOR;
 		logger::info("Finished startup tasks, enjoy your game!"sv);
-		Settings::JSON::Holder::GetSingleton()->Release();
 		break;
 	default:
 		break;
@@ -77,32 +80,30 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_
 	logger::info("Performing startup tasks..."sv);
 
 	if (!Settings::INI::Read()) {
-		SKSE::stl::report_and_fail("Failed to load INI settings. Check the log for more information."sv);
+		SKSE::stl::report_and_fail(
+			fmt::format("Failed to load the INI settings. Check the log at (Documents/My Games/Skyrim Special Edition/{}.log for more information."sv, Plugin::NAME));
 	}
 	SECTION_SEPARATOR;
 	if (!Hooks::Install()) {
-		SKSE::stl::report_and_fail("Failed to install hooks. Check the log for more information."sv);
+		SKSE::stl::report_and_fail(
+			fmt::format("Failed to install the necessary hooks. Check the log at (Documents/My Games/Skyrim Special Edition/{}.log for more information."sv, Plugin::NAME));
 	}
-	SECTION_SEPARATOR;
-
-	SKSE::GetPapyrusInterface()->Register(Papyrus::RegisterFunctions);
 
 	const auto messaging = SKSE::GetMessagingInterface();
 	messaging->RegisterListener(&MessageEventCallback);
 
-	logger::info("Setting up serialization system..."sv);
-	const auto serialization = SKSE::GetSerializationInterface();
-	serialization->SetUniqueID(Serialization::ID);
-	serialization->SetSaveCallback(&Serialization::SaveCallback);
-	serialization->SetLoadCallback(&Serialization::LoadCallback);
-	serialization->SetRevertCallback(&Serialization::RevertCallback);
-	logger::info("  >Registered necessary functions."sv);
 	SECTION_SEPARATOR;
-
-
 	if (!Settings::JSON::Preload()) {
-		SKSE::stl::report_and_fail("Failed to preload JSON configs. Check the log for more information."sv);
+#ifdef NDEBUG
+		SKSE::stl::report_and_fail(
+			fmt::format("Failed to parse configs. Check the log (Documents/My Games/Skyrim Special Edition/{}.log for more information."sv, Plugin::NAME));
+#endif
 	}
 	SECTION_SEPARATOR;
+	if (!Papyrus::RegisterFunctions()) {
+		SKSE::stl::report_and_fail(
+			fmt::format("Failed to register the new Papyrus functions. Check the log at (Documents/My Games/Skyrim Special Edition/{}.log for more information."sv, Plugin::NAME));
+	}
+
 	return true;
 }
