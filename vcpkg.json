@@ -8,7 +8,8 @@
     "commonlib-shared",
     "clib-util",
     "jsoncpp",
-    "magic-enum"
+    "magic-enum",
+    "xbyak"
   ],
   "builtin-baseline": "eae1680538b86f962455c27abca2aad0dc304a4d"
 }
