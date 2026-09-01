@@ -75,12 +75,16 @@ SKSE_PLUGIN_LOAD(const SKSE::LoadInterface * a_skse)
 	REX::INFO("Author: SeaSparrow"sv);
 	SECTION_SEPARATOR;
 
-#ifdef SKYRIM_AE
 	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_SSE_LATEST) {
+
+	static constexpr std::array<REL::Version, 1> supported = 
+	{
+		SKSE::RUNTIME_SSE_1_7_104
+	};
+
+	if (!std::ranges::contains(supported, ver)) {
 		return false;
 	}
-#endif
 
 	REX::INFO("Performing startup tasks..."sv);
 
