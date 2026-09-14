@@ -2,8 +2,8 @@
 
 namespace Hooks {
 	bool Install() {
-		logger::info("Installing hooks..."sv);
-		logger::info("  - Done!"sv);
+		REX::INFO("Installing hooks..."sv);
+		REX::INFO("  - Done!"sv);
 		return true;
 	}
 }

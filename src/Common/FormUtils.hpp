@@ -3,9 +3,8 @@
 #include <ClibUtil/string.hpp>
 #include <ClibUtil/editorID.hpp>
 
-namespace JSONUtils
+namespace FormUtils
 {
-    // Helper function for extracting forms from a string
     template <typename T>
     struct form_type
     {
@@ -64,131 +63,193 @@ namespace JSONUtils
         }
     }
 
-    enum class QueryResult
+    enum class ToNumError
     {
-        Success,          // Success
-        FormatError,      // String is in an invalid format (EditorID while PO3's Tweaks is not present, FormID not hex, etc)
-        FileNotFound,     // ESP/ESM/ESL missing
-        FormNotInFile,    // Master exists, but form is not present
-        WrongFormtype,    // Form exists in given file, but type is wrong.
-        NoForm,           // Form simply not found
+        StringEmpty,       // Example: to_num<size_t>("") || to_num<size_t>("0x")
 
-        MissingPo3Tweaks, // EditorID query that requires PO3's tweaks but PO3's tweaks is not present.
-        GenericFailure    // Catchall (might be missing data handler, cosmic ray, etc)
+        NotANumber,        // Provided string is not a number.
+        InvalidNumber,     // Number is out of bounds for the value.
+        FloatFromHex,      // Asked to convert a hex to a float.
+
+        IllegalConversion  // Catch-all for illegal conversions. Likely impossible to reach.
     };
 
-    template <typename T>
-    struct QueryData
+    enum class QueryError
     {
-        T*          value;
-        QueryResult status;
+        MissingDataHandler, // Unlikely error - the DataHandler is initialized before SKSE plugins can be.
+        PO3TweaksMissing,   // Queries via EDID are supported, but some forms are not cached without PO3 tweaks.
+        InvalidFormID,      // Simple typo on the query. Banana crash, essentially.
+        FormWrongType,      // Form exists, but is not of the specified type. Almost always a hard error.
+
+        StringEmpty         // Technically an error, very unlikely.
     };
 
-
-    template <typename T>
-    QueryData<T> find_form_from_string(std::string_view a_str) {
-        constexpr bool supportsEDID = supports_edids_without_tweaks(form_type<T>::value);
-
-        QueryData<T> response({ nullptr, QueryResult::FormatError });
-
-        auto* dh = RE::TESDataHandler::GetSingleton();
-        if (!dh) {
-            response.status = QueryResult::GenericFailure;
-            return response;
+    std::string_view to_string(ToNumError flag)
+    {
+        switch (flag) {
+        case ToNumError::StringEmpty: return "StringEmpty";
+        case ToNumError::NotANumber: return "NotANumber";
+        case ToNumError::InvalidNumber: return "InvalidNumber";
+        case ToNumError::FloatFromHex: return "FloatFromHex";
+        case ToNumError::IllegalConversion: return "IllegalConversion";
+        default: return "Unknown";
         }
+    }
 
-        auto* tweaks = REX::W32::GetModuleHandleW(L"po3_Tweaks.dll");
-        auto parts = clib_util::string::split(a_str, "|");
-       
-        if (parts.size() == 1) {
-            if constexpr (!supportsEDID) {
-                if (!tweaks) {
-                    response.status = QueryResult::MissingPo3Tweaks;
-                    return response;
-                }
-            }
-            auto* asForm = RE::TESForm::LookupByEditorID(parts[0]);
-            if (!asForm) {
-                response.status = QueryResult::NoForm;
-                return response;
-            }
-            T* castForm = asForm->As<T>();
-            if (!castForm) {
-                response.status = QueryResult::WrongFormtype;
-                return response;
-            }
-            response.status = QueryResult::Success;
-            response.value = castForm;
+    std::string_view to_string(QueryError flag) {
+        switch (flag) {
+        case QueryError::MissingDataHandler: return "MissingDataHandler";
+        case QueryError::PO3TweaksMissing: return "PO3TweaksMissing";
+        case QueryError::InvalidFormID: return "InvalidFormID";
+        case QueryError::FormWrongType: return "FormWrongType";
+        case QueryError::StringEmpty: return "StringEmpty";
+        default: return "Unknown";
         }
-        else if (parts.size() == 2) {
-            const auto& first = parts[0];
-            const auto& second = parts[1];
-
-            RE::TESForm* asForm = nullptr;
-            RE::FormID formID;
-            if (clib_util::string::is_only_hex(first)) {
-                if (!dh->LookupModByName(second)) {
-                    response.status = QueryResult::FileNotFound;
-                    return response;
-                }
-                formID = clib_util::string::to_num<RE::FormID>(first);
-                asForm = dh->LookupFormID(formID, second);
-            }
-            else if (clib_util::string::is_only_hex(second)) {
-                if (!dh->LookupModByName(first)) {
-                    response.status = QueryResult::FileNotFound;
-                    return response;
-                }
-                formID = clib_util::string::to_num<RE::FormID>(second);
-                asForm = dh->LookupFormID(formID, first);
-            }
-            else {
-                return response;
-            }
-
-            if (!asForm) {
-                response.status = QueryResult::FormNotInFile;
-                return response;
-            }
-            T* castForm = asForm->As<T>();
-            if (!castForm) {
-                response.status = QueryResult::WrongFormtype;
-                return response;
-            }
-
-            response.status = QueryResult::Success;
-            response.value = castForm;
-        }
-
-        return response;
     }
 
     template <typename T>
-    struct MassQueryResult
-    {
-        QueryResult     status;
-        std::vector<T*> values{};
-    };
+    concept Integral =
+        std::is_integral_v<T>;
 
     template <typename T>
-    MassQueryResult<T> forms_from_strings(const std::vector<std::string_view>& strings)
-    {
-        MassQueryResult<T> result;
-        result.status = QueryResult::Success;
-        if (strings.empty()) {
-            return result;
-        }
-        result.values.reserve(strings.size());
+    concept FloatingPoint =
+        std::is_floating_point_v<T>;
 
-        QueryData<T> subResult;
-        for (const auto& str : strings) {
-            subResult = find_form_from_string<T>(str);
-            if (subResult.value) {
-                result.values.emplace_back(subResult.value);
-                continue;
-            }
-            result.status = std::max(subResult.status, result.status);
+    template <typename T>
+    concept NumericallyRepresentable =
+        Integral<T> || FloatingPoint<T>;
+    
+    template <typename T>
+    requires NumericallyRepresentable<T>
+    inline std::expected<T, ToNumError> to_num(const std::string& str)
+    {
+        if (str.empty()) {
+            return std::unexpected(ToNumError::StringEmpty);
         }
-        return result;
+
+        const auto firstTwo = str.substr(0, 2);
+        const bool hasHexPrefix = firstTwo == "0x" || firstTwo == "0X";
+
+        auto size = str.size();
+        if (hasHexPrefix) {
+            if constexpr (std::is_floating_point<T>) {
+                return std::unexpected(ToNumError::FloatFromHex);
+            }
+
+            size -= 2u;
+            if (size == 0u) {
+                return std::unexpected(ToNumError::StringEmpty);
+            }
+        }
+
+        T val{};
+        const auto begin = hasHexPrefix ? str.data() + 2 : str.data();
+        const auto end = begin + size;
+        std::from_chars_result res;
+
+        if constexpr (std::is_integral_v<T>) {
+            res = std::from_chars(
+                begin,
+                end,
+                val,
+                hasHexPrefix ? 16 : 10);
+        }
+        else {
+            if (hasHexPrefix)
+                return std::unexpected(ToNumError::FloatFromHex);
+
+            res = std::from_chars(
+                begin,
+                end,
+                val,
+                std::chars_format::general);
+        }
+
+        if (res.ec == std::errc::result_out_of_range) {
+            return std::unexpected(ToNumError::InvalidNumber);
+        }
+        else if (res.ec == std::errc::invalid_argument) {
+            return std::unexpected(ToNumError::NotANumber);
+        }
+        else if (res.ptr != begin + size) {
+            return std::unexpected(ToNumError::NotANumber);
+        }
+        return val;
+    }
+
+    template <class T>
+    std::expected<T*, QueryError> get_form_by_edid(std::string_view edid)
+    {
+        auto* form = RE::TESForm::LookupByEditorID(edid);
+        if (!form) {
+            return nullptr;
+        }
+
+        if (form->GetFormType() != form_type<T>::value) {
+            return std::unexpected(QueryError::FormWrongType);
+        }
+
+        return form->As<T>();
+    }
+
+    template <class T>
+    std::expected<T*, QueryError> get_form_from_string(const std::string& str)
+    {
+        constexpr bool supportsEDID = supports_edids_without_tweaks(form_type<T>::value);
+        if (str.empty()) {
+            return std::unexpected(QueryError::StringEmpty);
+        }
+
+        auto* dh = RE::TESDataHandler::GetSingleton();
+        if (!dh) [[unlikely]] {
+            return std::unexpected(QueryError::MissingDataHandler);
+        }
+
+        auto end = str.end();
+        auto delimiterPos = str.begin();
+        for (; delimiterPos != end; ++delimiterPos) {
+            if (*delimiterPos == '|') {
+                break;
+            }
+        }
+
+        if (delimiterPos == end) {
+            if constexpr (supportsEDID) {
+                return get_form_by_edid<T>(str);
+            }
+
+            static auto tweaks = REX::W32::GetModuleHandleW(L"po3_Tweaks.dll");
+            if (!tweaks) {
+                return std::unexpected(QueryError::PO3TweaksMissing);
+            }
+            return get_form_by_edid<T>(str);
+        }
+
+        bool modIspreceding = true;
+        const std::string_view preceding = str.substr(0, delimiterPos);
+        const std::string_view following = str.substr(delimiterPos + 1);
+
+        auto rawID = to_num<RE::FormID>(following);
+        if (raw_id.error()) {
+            rawID = to_num<RE::FormID>(preceding);
+            if (rawID.error()) {
+                return std::unexpected(QueryError::InvalidFormID);
+            }
+            modIspreceding = false;
+        }
+
+        if (!dh->LookupModByName(modIspreceding ? preceding : following)) {
+            return nullptr;
+        }
+
+        auto id = rawID.value();
+        auto* form = dh->LookupForm(id, modIspreceding ? preceding : following);
+        if (!form) {
+            return nullptr; // form not in file *may* be an error, but mods get updated.
+        }
+        if (form->GetFormType() != form_type<T>::value) {
+            return std::unexpected(QueryError::FormWrongType);
+        }
+        return form->As<T>();
     }
 }

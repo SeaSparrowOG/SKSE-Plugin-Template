@@ -7,11 +7,11 @@ namespace Papyrus {
 	}
 
 	static bool Bind(VM& a_vm) {
-		logger::info("Binding new Papyrus functions..."sv);
+		REX::INFO("Binding new Papyrus functions..."sv);
 		BIND(GetVersion);
-		logger::info("  - Bound GetVersion to {}"sv, script);
+		REX::INFO("  - Bound GetVersion to {}"sv, script);
 
-		logger::info("  - Done!"sv);
+		REX::INFO("  - Done!"sv);
 		SECTION_SEPARATOR;
 		return true;
 	}
