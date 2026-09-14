@@ -49,7 +49,7 @@ namespace Serialization {
 			bool serializableSuccess = obj.second && obj.second->Save(a_intfc);
 			if (!serializableSuccess) {
 				REX::CRITICAL("  >Serialization error reported for object: {}"sv, obj.second ? 
-					DecodeTypeCode(obj.second->GetSerializationID()) : 
+					decode_type_code(obj.second->GetSerializationID()) : 
 					"NULL");
 			}
 			success &= serializableSuccess;
@@ -73,7 +73,7 @@ namespace Serialization {
 			if (it != end) {
 				bool serializableSuccess = it->second && it->second->Load(a_intfc);
 				if (!serializableSuccess) {
-					REX::CRITICAL("  >Serialization error reported for object: {}"sv, DecodeTypeCode(type));
+					REX::ERROR("  >Serialization error reported for object: {}"sv, decode_type_code(type));
 				}
 				success &= serializableSuccess;
 			}
@@ -91,7 +91,7 @@ namespace Serialization {
 			bool serializableSuccess = obj.second && obj.second->Revert(a_intfc);
 			if (!serializableSuccess) {
 				REX::CRITICAL("  >Serialization error reported for object: {}"sv, obj.second ?
-					DecodeTypeCode(obj.second->GetSerializationID()) :
+					decode_type_code(obj.second->GetSerializationID()) :
 					"NULL");
 			}
 			success &= serializableSuccess;
@@ -106,7 +106,7 @@ namespace Serialization {
 		auto recordType = a_newObject->GetSerializationID();
 		if (recordObjectMap.contains(recordType)) {
 			REX::FAIL(
-				fmt::format("Duplicate serialization registration for record type {}", DecodeTypeCode(recordType)));
+				fmt::format("Duplicate serialization registration for record type {}", decode_type_code(recordType)));
 		}
 		recordObjectMap.emplace(recordType, a_newObject);
 	}
@@ -137,12 +137,12 @@ namespace Serialization {
 
 	bool Serializable::Save(SKSE::SerializationInterface* a_intfc) {
 		(void)a_intfc;
-		return false;
+		return true;
 	}
 
 	bool Serializable::Load(SKSE::SerializationInterface* a_intfc) {
 		(void)a_intfc;
-		return false;
+		return true;
 	}
 
 	bool Serializable::Revert(SKSE::SerializationInterface* a_intfc) {

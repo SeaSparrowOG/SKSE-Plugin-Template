@@ -4,6 +4,6 @@ namespace RE::Offset
 {
 	namespace Example
 	{
-		constexpr auto FunctionName = REL::ID(55976);
+		REL::Relocation site(REL::ID(55976), 0x0);
 	}
 }

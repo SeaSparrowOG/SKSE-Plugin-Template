@@ -48,11 +48,10 @@ namespace Serialization
 	/// </summary>
 	/// <param name="a_typeCode">The unexpected record type.</param>
 	/// <returns>The unexpected record type as a string.</returns>
-	inline static std::string DecodeTypeCode(std::uint32_t a_typeCode)
+	inline static std::string decode_type_code(std::uint32_t a_typeCode)
 	{
 		std::string result(4, '\0');
 
-		// Extract bytes from most significant to least
 		result[0] = static_cast<char>((a_typeCode >> 24) & 0xFF);
 		result[1] = static_cast<char>((a_typeCode >> 16) & 0xFF);
 		result[2] = static_cast<char>((a_typeCode >> 8) & 0xFF);
@@ -67,7 +66,7 @@ namespace Serialization
 	/// <param name="a_intfc">The serialization interface provided by SKSE.</param>
 	/// <param name="a_str">The string to serialize.</param>
 	/// <returns>True if encoding is successful, false otherwise.</returns>
-	inline static bool WriteString(SKSE::SerializationInterface* a_intfc,
+	inline static bool write_string_to_interface(SKSE::SerializationInterface* a_intfc,
 		const std::string& a_str)
 	{
 		std::size_t size = a_str.length() + 1;
@@ -80,7 +79,7 @@ namespace Serialization
 	/// <param name="a_intfc">The serialization interface provided by SKSE.</param>
 	/// <param name="a_str">The result is stored here.</param>
 	/// <returns>True if successful, false otherwise.</returns>
-	inline static bool ReadString(SKSE::SerializationInterface* a_intfc,
+	inline static bool read_string_from_interface(SKSE::SerializationInterface* a_intfc,
 		std::string& a_str)
 	{
 		std::size_t size = 0;
@@ -106,7 +105,7 @@ namespace Serialization
 		IncorrectType
 	};
 
-	inline static std::string GetFormFromInterfaceResult_ToString(GetFormFromInterfaceResult a_flag) {
+	inline static std::string to_string(GetFormFromInterfaceResult a_flag) {
 		switch (a_flag) {
 		case GetFormFromInterfaceResult::Success: return "Success";
 		case GetFormFromInterfaceResult::NoForm: return "NoForm";
@@ -129,7 +128,7 @@ namespace Serialization
 	/// <param name="a_intfc">The SKSE Serialization Interface.</param>
 	/// <returns>A RetrievedForm struct.</returns>
 	template <typename T>
-	inline static RetrievedForm<T> GetFormFromInterface(SKSE::SerializationInterface* a_intfc) {
+	inline static RetrievedForm<T> read_form_from_interface(SKSE::SerializationInterface* a_intfc) {
 		RetrievedForm<T> response{};
 		RE::FormID oldID = 0;
 		if (!a_intfc->ReadRecordData(oldID)) {
