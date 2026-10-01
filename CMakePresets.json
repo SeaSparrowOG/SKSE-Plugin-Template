@@ -23,14 +23,8 @@
    }
   },
   {
-   "name": "steam",
-   "hidden": true,
-   "binaryDir": "${sourceDir}/build"
-  },
-  {
    "name": "github",
    "hidden": true,
-   "binaryDir": "${sourceDir}/build-github",
    "cacheVariables": {
     "SKIP_ARTIFACTS": true
    }
@@ -54,6 +48,7 @@
   {
    "name": "github-gog",
    "hidden": false,
+   "binaryDir": "${sourceDir}/build",
    "inherits": [
     "base",
     "gog",
@@ -63,9 +58,9 @@
   {
    "name": "github-steam",
    "hidden": false,
+   "binaryDir": "${sourceDir}/build",
    "inherits": [
     "base",
-    "steam",
     "github"
    ]
   }
