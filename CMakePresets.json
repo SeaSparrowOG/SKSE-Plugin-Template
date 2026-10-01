@@ -1,102 +1,73 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 24,
-        "patch": 0
-    },
-    "configurePresets": [
-        {
-            "name": "base",
-            "hidden": true,
-            "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/build",
-            "cacheVariables": {
-                "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
-                "VCPKG_TARGET_TRIPLET": "x64-windows-static",
-                "VCPKG_OVERLAY_PORTS": "${sourceDir}/cmake/ports;${sourceDir}/External/CommonLibSSE/cmake/ports",
-                "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /external:anglebrackets /external:W0 $penv{CXXFLAGS}",
-                "FULL_RELEASE": false,
-                "GOG": false,
-                "SKIP_ARTIFACTS": false
-            },
-            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        },
-        {
-            "name": "release",
-            "hidden": true,
-            "inherits": "base",
-            "cacheVariables": {
-                "FULL_RELEASE": true
-            }
-        },
-        {
-            "name": "release-gog",
-            "hidden": true,
-            "inherits": "base",
-            "binaryDir": "${sourceDir}/build-gog",
-            "cacheVariables": {
-                "FULL_RELEASE": true,
-                "GOG": true
-            }
-        },
-        {
-            "name": "test",
-            "hidden": true,
-            "inherits": "base",
-            "binaryDir": "${sourceDir}/build-test"
-        },
-        {
-            "name": "github",
-            "hidden": true,
-            "inherits": "release",
-            "cacheVariables": {
-                "SKIP_ARTIFACTS": true
-            }
-        },
-        {
-            "name": "github-gog",
-            "hidden": true,
-            "inherits": "release-gog",
-            "cacheVariables": {
-                "SKIP_ARTIFACTS": true
-            }
-        },
-        {
-            "name": "test-release",
-            "description": "",
-            "displayName": "",
-            "inherits": [
-                "release"
-            ]
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "Github",
-            "configurePreset": "github",
-            "configuration": "Release"
-        },
-        {
-            "name": "Github-GOG",
-            "configurePreset": "github-gog",
-            "configuration": "Release"
-        },
-        {
-            "name": "Release",
-            "configurePreset": "release",
-            "configuration": "Release"
-        },
-        {
-            "name": "Release-GOG",
-            "configurePreset": "release-gog",
-            "configuration": "Release"
-        },
-        {
-            "name": "Test",
-            "configurePreset": "test",
-            "configuration": "Debug"
-        }
-    ]
+ "version": 3,
+ "cmakeMinimumRequired": {
+  "major": 3,
+  "minor": 24,
+  "patch": 0
+ },
+ "configurePresets": [
+  {
+   "name": "base",
+   "hidden": true,
+   "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+   "generator": "Visual Studio 18 2026",
+   "cacheVariables": {
+    "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
+    "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+    "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /external:anglebrackets /external:W0 $penv{CXXFLAGS}",
+    "VCPKG_OVERLAY_PORTS": "${sourceDir}/cmake/ports;${sourceDir}/External/CommonLibSSE/cmake/ports",
+    "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+    "GOG": false,
+    "SKIP_ARTIFACTS": false,
+    "CMAKE_BUILD_TYPE": "Release"
+   }
+  },
+  {
+   "name": "steam",
+   "hidden": true,
+   "binaryDir": "${sourceDir}/build"
+  },
+  {
+   "name": "github",
+   "hidden": true,
+   "binaryDir": "${sourceDir}/build-github",
+   "cacheVariables": {
+    "SKIP_ARTIFACTS": true
+   }
+  },
+  {
+   "name": "gog",
+   "hidden": true,
+   "binaryDir": "${sourceDir}/build-gog",
+   "cacheVariables": {
+    "GOG": true
+   }
+  },
+  {
+   "name": "test",
+   "hidden": false,
+   "binaryDir": "${sourceDir}/build-test",
+   "cacheVariables": {
+    "CMAKE_BUILD_TYPE": "Debug"
+   }
+  },
+  {
+   "name": "github-gog",
+   "hidden": false,
+   "inherits": [
+    "base",
+    "gog",
+    "github"
+   ]
+  },
+  {
+   "name": "github-steam",
+   "hidden": false,
+   "inherits": [
+    "base",
+    "steam",
+    "github"
+   ]
+  }
+ ]
 }
