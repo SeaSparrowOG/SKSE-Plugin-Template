@@ -19,9 +19,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - preset: Github
+          - preset: github-steam
             artifact: release
-          - preset: Github-GOG
+          - preset: github-gog
             artifact: gog
 
     steps:

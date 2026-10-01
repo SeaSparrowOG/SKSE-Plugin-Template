@@ -216,11 +216,3 @@ install(
 	DESTINATION "SKSE/Plugins"
 	COMPONENT components
 )
-
-install(
-  FILES 
-	"${DATA_DIR}/${PROJECT_NAME}.bsa"
-	"${DATA_DIR}/${PROJECT_NAME}.esp"
-  DESTINATION "."
-  COMPONENT components 
-)
