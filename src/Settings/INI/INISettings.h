@@ -76,9 +76,7 @@ namespace Settings
 					}
 					return value;
 				}
-				else if constexpr (is_text<T>) {
-					return where->second;
-				}
+				return where->second;
 			}
 
 		private:
