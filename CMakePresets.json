@@ -41,6 +41,9 @@
    "name": "test",
    "hidden": false,
    "binaryDir": "${sourceDir}/build-test",
+   "inherits": [
+    "base"
+   ],
    "cacheVariables": {
     "CMAKE_BUILD_TYPE": "Debug"
    }
